@@ -1,11 +1,8 @@
 ﻿using SkiaSharp;
 using SkiaSharp.QrCode;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace QrCode
 {
@@ -13,21 +10,35 @@ namespace QrCode
     {
         static void Main(string[] args)
         {
-            var content = "https://diegoadias.online/";
             var g = new QRCodeGenerator();
-            var level = ECCLevel.Q;
-            var qr = g.CreateQrCode(content, level);
-            var i = new SKImageInfo(256, 256);
-            var surface = SKSurface.Create(i);
-            var canvas = surface.Canvas;
-            
-            canvas.Render(qr, 256, 256, SKColors.White);
+            var lvl = ECCLevel.H;
 
-            var img = surface.Snapshot();
-            var d = img.Encode(SKEncodedImageFormat.Png, 100);
+            var content = "https://diegoadias.online/";
+
+            var qr = g.CreateQrCode(content, lvl);
+            var inf = new SKImageInfo(256, 256);
+
+            var srfce = SKSurface.Create(inf);
+
+            var cnvs = srfce.Canvas;
+            cnvs.Render(qr, 256, 256, SKColors.White);
+
+            var img = srfce.Snapshot();
+            var dat = img.Encode(SKEncodedImageFormat.Png, 100);
             var stream = File.OpenWrite(@"Teste.png");
-            
-            d.SaveTo(stream);
+
+            dat.SaveTo(stream);
+
+            img.Dispose(); dat.Dispose(); stream.Close(); stream.Dispose();
+
+            Image img2 = Image.FromFile(@"Teste.png");
+
+            Graphics g2 = Graphics.FromImage(img2);
+            g2.DrawImage(Image.FromFile("Rei.png"), new Point(100, 80));
+            g2.Dispose();
+
+            img2.Save("output.png", ImageFormat.Png);
+            img2.Dispose();
         }
     }
 }
